@@ -97,6 +97,7 @@ def create_test_cluster_info() -> ClusterInfo:
         }
     )
 
+@pytest.mark.asyncio
 async def test_drf_scheduler():
     """DRF 스케줄러 테스트"""
     logger.info("=== DRF Scheduler Test ===")
@@ -130,6 +131,7 @@ async def test_drf_scheduler():
     for i, (job, score) in enumerate(job_priorities, 1):
         logger.info(f"{i}. {job.name} (Score: {score:.4f})")
 
+@pytest.mark.asyncio
 async def test_gang_scheduling():
     """Gang Scheduling 테스트"""
     logger.info("=== Gang Scheduling Test ===")
@@ -148,6 +150,7 @@ async def test_gang_scheduling():
     for gang_id, jobs in gang_groups.items():
         logger.info(f"  Gang {gang_id}: {[job.name for job in jobs]}")
 
+@pytest.mark.asyncio
 async def test_aging_mechanism():
     """Aging 메커니즘 테스트"""
     logger.info("=== Aging Mechanism Test ===")
@@ -176,6 +179,7 @@ async def test_aging_mechanism():
         priority_score = scheduler.calculate_priority_score(job, cluster_info)
         logger.info(f"Job age: {hours}h, Priority Score: {priority_score:.4f}")
 
+@pytest.mark.asyncio
 @pytest.mark.skipif(os.getenv('CI') == 'true', reason='Skip in CI')
 async def test_kueue_integration():
     """Kueue 통합 테스트"""
