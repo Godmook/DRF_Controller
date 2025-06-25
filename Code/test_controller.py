@@ -7,6 +7,7 @@ from .Controller import (
     ClusterInfo, DRFScheduler
 )
 import time
+from unittest.mock import patch, MagicMock
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -215,6 +216,18 @@ def test_controller_with_kueue():
     
     print("✅ Controller with Kueue test completed")
 
+def test_k8s_api_mock():
+    with patch('kubernetes.client.BatchV1Api') as mock_batch, \
+         patch('kubernetes.client.CoreV1Api') as mock_core, \
+         patch('kubernetes.client.CustomObjectsApi') as mock_custom:
+        mock_batch.return_value.list_job_for_all_namespaces.return_value = MagicMock(items=[])
+        mock_core.return_value.list_node.return_value = MagicMock(items=[])
+        mock_custom.return_value.list_cluster_custom_object.return_value = {'items': []}
+        # 간단한 assert로 mock이 잘 동작하는지 확인
+        assert mock_batch.called is False
+        assert mock_core.called is False
+        assert mock_custom.called is False
+
 async def main():
     """메인 테스트 함수"""
     logger.info("Starting DRF Controller Tests")
@@ -233,6 +246,9 @@ async def main():
     
     # Kueue 통합이 활성화된 컨트롤러 테스트
     test_controller_with_kueue()
+    
+    # K8S API mock 테스트
+    test_k8s_api_mock()
     
     logger.info("All tests completed")
 
