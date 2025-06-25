@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drf-controller
+  namespace: drf-system
+  labels:
+    app: drf-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drf-controller
+  template:
+    metadata:
+      labels:
+        app: drf-controller
+    spec:
+      serviceAccountName: drf-controller
+      containers:
+      - name: drf-controller
+        image: drf-controller:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: KUEUE_ENABLED
+          value: "true"
+        - name: SCHEDULING_INTERVAL
+          value: "30"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: drf-controller
+  namespace: drf-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: drf-controller
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["scheduling.k8s.io"]
+    resources: ["priorityclasses"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  - apiGroups: ["kueue.x-k8s.io"]
+    resources: ["workloads", "queues", "clusters"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: ["kueue.x-k8s.io"]
+    resources: ["workloads/status", "queues/status"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: drf-controller
+subjects:
+  - kind: ServiceAccount
+    name: drf-controller
+    namespace: drf-system
+roleRef:
+  kind: ClusterRole
+  name: drf-controller
+  apiGroup: rbac.authorization.k8s.io 

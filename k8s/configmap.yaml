@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drf-controller-config
+  namespace: kueue-system
+data:
+  # DRF 스케줄러 설정
+  aging_alpha: "0.1"
+  check_interval: "30"
+  
+  # 우선순위 가중치 설정
+  approved_weight: "0"
+  normal_weight: "1000"
+  
+  # Gang Scheduling 설정
+  gang_scheduling_enabled: "true"
+  
+  # 로깅 설정
+  log_level: "INFO"
+  
+  # Kueue 설정
+  kueue_namespace: "kueue-system"
+  queue_name: "default"
+  
+  # 자원 타입 설정
+  resource_types: |
+    - cpu
+    - gpu
+    - memory 
