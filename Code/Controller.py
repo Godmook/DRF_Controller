@@ -170,6 +170,7 @@ class K8SController:
         except config.ConfigException:
             config.load_kube_config()  # 로컬 개발 환경
         
+        _safe_load_kube_config()
         self.core_v1 = client.CoreV1Api()
         self.batch_v1 = client.BatchV1Api()
         self.custom_objects_api = client.CustomObjectsApi()
