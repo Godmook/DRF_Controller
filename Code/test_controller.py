@@ -253,4 +253,8 @@ async def main():
     logger.info("All tests completed")
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    import sys
+    # pytest로 실행될 때는 main()을 실행하지 않음
+    if not ("pytest" in sys.modules):
+        import asyncio
+        asyncio.run(main()) 
